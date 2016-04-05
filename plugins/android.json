@@ -8,10 +8,10 @@
     },
     "installed_plugins": {
         "cordova-plugin-crosswalk-webview": {
-            "PACKAGE_NAME": "io.cordova.hellocordova"
+            "PACKAGE_NAME": "eu.rethink.demos"
         },
         "cordova-plugin-whitelist": {
-            "PACKAGE_NAME": "io.cordova.hellocordova"
+            "PACKAGE_NAME": "eu.rethink.demos"
         }
     },
     "dependent_plugins": {}
