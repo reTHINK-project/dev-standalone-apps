@@ -10740,12 +10740,6 @@ process.umask = function() { return 0; };
 },{}],295:[function(require,module,exports){
 'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; }; // jshint browser:true, jquery: true
-// jshint varstmt: true
-
-// polyfills
-
-
 var _support = require('./support');
 
 require('babel-polyfill');
@@ -10758,14 +10752,25 @@ require('object.observe');
 
 require('array.observe');
 
+//import InstallerFactory from '../resources/factories/InstallerFactory';
+//import RuntimeLoader from '../src/runtime-loader/RuntimeLoader';
+
 // reTHINK modules
 // import RuntimeUA from 'runtime-core/dist/runtimeUA';
-//
+
 // import SandboxFactory from '../resources/sandboxes/SandboxFactory';
 // let sandboxFactory = new SandboxFactory();
+// jshint browser:true, jquery: true
+/* global Handlebars */
+/* global Materialize */
+
+//import config from '../system.config.json!json';
 var avatar = 'https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg';
 
 // You can change this at your own domain
+
+
+// polyfills
 var domain = "rethink.quobis.com";
 
 // Hack because the GraphConnector jsrsasign module;
@@ -10779,6 +10784,8 @@ if (document.readyState === 'complete') {
   document.addEventListener('DOMContentLoaded', documentReady, false);
 }
 
+var runtimeLoader;
+
 function documentReady() {
 
   (0, _support.ready)();
@@ -10786,337 +10793,296 @@ function documentReady() {
   var hypertyHolder = $('.hyperties');
   hypertyHolder.removeClass('hide');
 
-  var hyperty = 'hyperty-catalogue://' + domain + '/.well-known/hyperty/HypertyConnector';
-
-  var runtime = window.rethink.install(domain);
-  console.log(runtime, hyperty);
-  setTimeout(function () {
-    // Load First Hyperty
-    runtime.requireHyperty(hyperty).then(hypertyDeployed).catch(function (reason) {
-      (0, _support.errorMessage)(reason);
-    });
-  }, 10000);
+  //let installerFactory = new InstallerFactory();
+  //let runtimeURL = 'hyperty-catalogue://' + domain + '/.well-known/runtime/RuntimeUA';
+  window.rethink.default.install(domain).then(runtimeInstalled).catch(_support.errorMessage);
 }
 
-var connector = void 0;
+function runtimeInstalled(runtime) {
+
+  console.log(runtimeLoader);
+
+  var hyperty = 'hyperty-catalogue://' + domain + '/.well-known/hyperty/HypertyChat';
+
+  // Load First Hyperty
+  runtime.requireHyperty(hyperty).then(hypertyDeployed).catch(function (reason) {
+    (0, _support.errorMessage)(reason);
+  });
+}
+
+var hypertyChat = void 0;
 
 function hypertyDeployed(result) {
 
+  hypertyChat = result.instance;
+
   var loginPanel = $('.login-panel');
   var cardAction = loginPanel.find('.card-action');
-  var hypertyInfo = '<span class="white-text"><p><b>hypertyURL:</b> ' + result.instance._hypertyURL + '</br><b>status:</b> ' + result.status + '</p></span>';
+  var hypertyInfo = '<span class="white-text"><p><b>hypertyURL:</b> ' + result.runtimeHypertyURL + '</br><b>status:</b> ' + result.status + '</p></span>';
 
-  loginPanel.attr('data-url', result.instance._hypertyURL);
+  loginPanel.attr('data-url', result.runtimeHypertyURL);
   cardAction.append(hypertyInfo);
 
-  // Prepare to discover email:
-  var hypertyDiscovery = result.instance.hypertyDiscovery;
-  discoverEmail(hypertyDiscovery);
-
-  // Prepare the chat
-  var messageChat = $('.hyperty-chat');
+  var messageChat = $('.chat');
   messageChat.removeClass('hide');
 
-  console.log(result);
+  var chatSection = $('.chat-section');
+  chatSection.removeClass('hide');
 
-  connector = result.instance;
+  // Create Chat section
+  var createRoomModal = $('.create-chat');
+  var participantsForm = createRoomModal.find('.participants-form');
+  var createRoomBtn = createRoomModal.find('.btn-create');
+  var addParticipantBtn = createRoomModal.find('.btn-add');
 
-  connector.addEventListener('connector:connected', function (controller) {
+  var countParticipants = 0;
 
-    connector.addEventListener('have:notification', function (event) {
-      notificationHandler(controller, event);
-    });
-  });
-}
+  addParticipantBtn.on('click', function (event) {
 
-function discoverEmail(hypertyDiscovery) {
-
-  var section = $('.discover');
-  var searchForm = section.find('.form');
-  var inputField = searchForm.find('.friend-email');
-
-  section.removeClass('hide');
-
-  searchForm.on('submit', function (event) {
     event.preventDefault();
 
-    var collection = section.find('.collection');
-    var collectionItem = '<li class="collection-item"><div class="preloader-wrapper small active"><div class="spinner-layer spinner-blue-only"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div></div></li>';
+    countParticipants++;
 
-    collection.removeClass('hide');
-    collection.addClass('center-align');
-    collection.html(collectionItem);
+    var participantEl = '<div class="row">' + '<div class="input-field col s8">' + '  <input class="input-email" name="email" id="email-' + countParticipants + '" required aria-required="true" type="text">' + '  <label for="email-' + countParticipants + '">Participant Email</label>' + '</div>' + '<div class="input-field col s4">' + '  <input class="input-domain" name="domain" id="domain-' + countParticipants + '" type="text">' + '  <label for="domain-' + countParticipants + '">Participant domain</label>' + '</div>' + '</div>';
 
-    var email = inputField.val();
-    console.log(email);
-
-    hypertyDiscovery.discoverHypertyPerUser(email).then(emailDiscovered).catch(emailDiscoveredError);
+    var participants = createRoomModal.find('.participants-form');
+    participants.append(participantEl);
   });
-}
 
-function emailDiscovered(result) {
-  console.log('Email Discovered: ', result);
-
-  var section = $('.discover');
-  var collection = section.find('.collection');
-  var collectionItem = '<li class="collection-item avatar"><img src="' + avatar + '" alt="" class="circle"><span class="title">' + result.id + '</span><p>' + result.descriptor + '<br>' + result.hypertyURL + '</p><a href="#!" class="message-btn"><i class="material-icons left">message</i>Send Message</a><a href="#!" class="call-btn"><i class="material-icons">call</i>Call</a></li>';
-
-  collection.empty();
-  collection.removeClass('center-align');
-  collection.append(collectionItem);
-
-  var messageChatBtn = collection.find('.message-btn');
-  messageChatBtn.on('click', function (event) {
+  createRoomBtn.on('click', function (event) {
     event.preventDefault();
-    openChat(result, false);
-  });
 
-  var callBtn = collection.find('.call-btn');
-  callBtn.on('click', function (event) {
-    event.preventDefault();
-    openChat(result, true);
-  });
-}
+    var participants = [];
+    /* participantsForm.find('.input-email').each(function() {
+      participants.push($(this).val());
+    });*/
+    console.log(participantsForm);
+    var serializedObject = $(participantsForm).serializeObjectArray();
 
-function emailDiscoveredError(result) {
+    // Prepare the chat
+    var name = createRoomModal.find('.input-name').val();
 
-  console.error('Email Discovered Error: ', result);
+    console.log(serializedObject);
 
-  var section = $('.discover');
-  var collection = section.find('.collection');
+    if (serializedObject.hasOwnProperty('email')) {
 
-  var collectionItem = '<li class="collection-item orange lighten-3"><i class="material-icons left circle">error_outline</i>' + result + '</li>';
-
-  collection.empty();
-  collection.removeClass('center-align');
-  collection.removeClass('hide');
-  collection.append(collectionItem);
-}
-
-function openChat(result, video) {
-
-  var messagesChat = $('.messages');
-  var messageForm = messagesChat.find('.form');
-  var loginPanel = $('.login-panel');
-  var fromUser = loginPanel.attr('data-url');
-  var toUserEl = messagesChat.find('.runtime-hyperty-url');
-  var toUser = result.hypertyURL;
-
-  toUserEl.html(toUser);
-
-  if (video) {
-
-    var options = options || { video: true, audio: true };
-    (0, _support.getUserMedia)(options).then(function (mediaStream) {
-      console.info('recived media stream: ', mediaStream);
-      return connector.connect(toUser, mediaStream);
-    }).then(function (controller) {
-
-      showVideo(controller);
-
-      controller.addEventListener('on:notification', notification);
-      controller.addEventListener('on:subscribe', function (controller) {
-        console.info('on:subscribe:event ', controller);
+      serializedObject.email.forEach(function (value, index) {
+        participants.push({ email: value, domain: serializedObject.domain[index] });
       });
-
-      controller.addEventListener('connector:notification', notification);
-
-      controller.addEventListener('stream:added', processVideo);
-    }).catch(function (reason) {
-      console.error(reason);
-    });
-  }
-
-  messageForm.on('submit', function (e) {
-
-    var messageText = messagesChat.find('.message-text').val();
-
-    if (messageText) {
-      sendMessage(fromUser, toUser, messageText);
     }
 
-    messageForm[0].reset();
+    console.log('Participants: ', participants);
 
-    e.preventDefault();
+    hypertyChat.create(name, participants).then(function (chatGroup) {
+
+      prepareChat(chatGroup);
+    }).catch(function (reason) {
+      console.error(reason);
+    });
   });
 
-  messagesChat.removeClass('hide');
+  hypertyChat.addEventListener('chat:subscribe', function (chatGroup) {
+    prepareChat(chatGroup);
+  });
+
+  // Join Chat Modal
+  var joinModal = $('.join-chat');
+  var joinBtn = joinModal.find('.btn-join');
+  joinBtn.on('click', function (event) {
+
+    event.preventDefault();
+
+    var resource = joinModal.find('.input-name').val();
+
+    hypertyChat.join(resource).then(function (chatGroup) {
+      prepareChat(chatGroup);
+    }).catch(function (reason) {
+      console.error(reason);
+    });
+  });
+
+  // Add actions
+  Handlebars.getTemplate('chat-actions').then(function (template) {
+
+    var html = template();
+    $('.chat-section').append(html);
+
+    var createBtn = $('.create-room-btn');
+    var joinBtn = $('.join-room-btn');
+
+    createBtn.on('click', createRoom);
+    joinBtn.on('click', joinRoom);
+  });
 }
 
-function processVideo(event) {
+function createRoom(event) {
+  event.preventDefault();
 
-  console.log('Process Video: ', event);
-
-  var messageChat = $('.hyperty-chat');
-  var video = messageChat.find('.video');
-  video[0].src = URL.createObjectURL(event.stream);
+  var createRoomModal = $('.create-chat');
+  createRoomModal.openModal();
 }
 
-function processMessage(msg, type) {
+function joinRoom(event) {
+  event.preventDefault();
 
-  // console.log(msg.body.value);
-  console.log(type);
-  if (_typeof(msg.body.value) !== 'object' && msg.body.value !== undefined) {
-
-    var messageCollection = $('.hyperty-chat .collection');
-    var messageItem = '<li class="collection-item avatar"><img src="' + avatar + '" alt="" class="circle"><span class="title">' + msg.from + '</span><p>' + msg.body.value.replace(/\n/g, '<br>') + '</p></li>';
-
-    messageCollection.append(messageItem);
-  }
+  var joinModal = $('.join-chat');
+  joinModal.openModal();
 }
 
-function sendMessage(from, to, message) {
+function prepareChat(chatGroup) {
 
-  var msg = {
-    to: to,
-    from: from,
-    type: 'message',
-    body: {
-      value: message
+  Handlebars.getTemplate('chat-section').then(function (html) {
+    $('.chat-section').append(html);
+
+    chatManagerReady(chatGroup);
+
+    console.log('Chat Group Controller: ', chatGroup);
+
+    chatGroup.addEventListener('have:new:notification', function (event) {
+      console.log('have:new:notification: ', event);
+      Materialize.toast('Have new notification', 3000, 'rounded');
+    });
+
+    chatGroup.addEventListener('new:message:recived', function (message) {
+      console.info('new message recived: ', message);
+      processMessage(message);
+    });
+
+    chatGroup.addEventListener('participant:added', function (participant) {
+      console.info('new participant', participant);
+      addParticipant(participant);
+    });
+  });
+}
+
+function chatManagerReady(chatGroup) {
+
+  var chatSection = $('.chat-section');
+  var addParticipantBtn = chatSection.find('.add-participant-btn');
+
+  var addParticipantModal = $('.add-participant');
+  var btnAdd = addParticipantModal.find('.btn-add');
+  var btnCancel = addParticipantModal.find('.btn-cancel');
+
+  var messageForm = chatSection.find('.message-form');
+  var textArea = messageForm.find('.materialize-textarea');
+
+  Handlebars.getTemplate('chat-header').then(function (template) {
+    var name = chatGroup.dataObject.data.communication.id;
+    var resource = chatGroup.dataObject._url;
+
+    var html = template({ name: name, resource: resource });
+    $('.chat-header').append(html);
+  });
+
+  var roomsSections = $('.rooms');
+  var collection = roomsSections.find('.collection');
+  var item = '<li class="collection-item active">' + chatGroup.dataObject.data.communication.id + '</li>';
+  collection.append(item);
+
+  var badge = collection.find('.collection-header .badge');
+  var items = collection.find('.collection-item').length;
+  badge.html(items);
+
+  textArea.on('keyup', function (event) {
+
+    if (event.keyCode === 13 && !event.shiftKey) {
+      messageForm.submit();
     }
-  };
+  });
 
-  processMessage(msg, 'out');
-}
+  messageForm.on('submit', function (event) {
+    event.preventDefault();
 
-function notification(event) {
-  console.log('Event: ', event);
-}
+    var object = $(this).serializeObject();
+    var message = object.message;
+    chatGroup.send(message).then(function (result) {
+      console.log('message sent', result);
+      messageForm[0].reset();
+    }).catch(function (reason) {
+      console.error('message error', reason);
+    });
+  });
 
-function notificationHandler(controller, event) {
+  btnAdd.on('click', function (event) {
+    event.preventDefault();
 
-  var calleeInfo = event.identity;
-  var incoming = $('.modal-call');
-  var acceptBtn = incoming.find('.btn-accept');
-  var rejectBtn = incoming.find('.btn-reject');
-  var informationHolder = incoming.find('.information');
-
-  showVideo(controller);
-
-  controller.addEventListener('stream:added', processVideo);
-
-  acceptBtn.on('click', function (e) {
-
-    e.preventDefault();
-
-    var options = options || { video: true, audio: true };
-    (0, _support.getUserMedia)(options).then(function (mediaStream) {
-      console.info('recived media stream: ', mediaStream);
-      return controller.accept(mediaStream);
-    }).then(function (result) {
-      console.log(result);
+    var emailValue = addParticipantModal.find('.input-name').val();
+    chatGroup.addParticipant(emailValue).then(function (result) {
+      console.log('hyperty', result);
     }).catch(function (reason) {
       console.error(reason);
     });
   });
 
-  rejectBtn.on('click', function (e) {
+  btnCancel.on('click', function (event) {
+    event.preventDefault();
+  });
 
-    controller.decline().then(function (result) {
-      console.log(result);
-    }).catch(function (reason) {
-      console.error(reason);
-    });
+  addParticipantBtn.on('click', function (event) {
+    event.preventDefault();
+    addParticipantModal.openModal();
+  });
+}
 
+function processMessage(message) {
+
+  var chatSection = $('.chat-section');
+  var messagesList = chatSection.find('.messages .collection');
+
+  var list = '<li class="collection-item avatar">\n    <img src="' + avatar + '" alt="" class="circle">\n    <span class="title">' + message.from + '</span>\n    <p>' + message.value.chatMessage.replace(/\n/g, '<br>') + '</p>\n  </li>';
+
+  messagesList.append(list);
+}
+
+function addParticipant(participant) {
+
+  var section = $('.conversations');
+  var collection = section.find('.participant-list');
+  var collectionItem = '<li class="chip" data-name="' + participant.hypertyResource + '"><img src="' + avatar + '" alt="Contact Person">' + participant.hypertyResource + '<i class="material-icons close">close</i></li>';
+
+  collection.removeClass('center-align');
+  collection.append(collectionItem);
+
+  var closeBtn = collection.find('.close');
+  closeBtn.on('click', function (e) {
     e.preventDefault();
-  });
 
-  var parseInformation = '<div class="col s12">' + '<div class="row valign-wrapper">' + '<div class="col s2">' + '<img src="' + calleeInfo.picture + '" alt="" class="circle responsive-img">' + '</div>' + '<span class="col s10">' + '<div class="row">' + '<span class="col s3 text-right">Name: </span>' + '<span class="col s9 black-text">' + calleeInfo.name + '</span>' + '</span>' + '<span class="row">' + '<span class="col s3 text-right">Email: </span>' + '<span class="col s9 black-text">' + calleeInfo.email + '</span>' + '</span>' + '<span class="row">' + '<span class="col s3 text-right">locale: </span>' + '<span class="col s9 black-text">' + calleeInfo.locale + '</span>' + '</span>' + '</div>' + '</div>';
-
-  informationHolder.html(parseInformation);
-  $('.modal-call').openModal();
-}
-
-// function processLocalVideo(controller) {
-//
-//   let localStreams = controller.getLocalStreams;
-//   for (let stream of localStreams) {
-//     console.log('Local stream: ' + stream.id);
-//   }
-//
-// }
-
-function showVideo(controller) {
-  var messageChat = $('.hyperty-chat');
-  var videoHolder = messageChat.find('.video-holder');
-  videoHolder.removeClass('hide');
-
-  var btnCamera = videoHolder.find('.camera');
-  var btnMute = videoHolder.find('.mute');
-  var btnMic = videoHolder.find('.mic');
-  var btnHangout = videoHolder.find('.hangout');
-
-  console.log(controller);
-
-  btnCamera.on('click', function (event) {
-
-    event.preventDefault();
-
-    controller.disableCam().then(function (status) {
-      console.log(status, 'camera');
-      var icon = 'videocam_off';
-      var text = 'Disable Camera';
-      if (!status) {
-        text = 'Enable Camera';
-        icon = 'videocam';
-      }
-
-      var iconEl = '<i class="material-icons left">' + icon + '</i>';
-      $(event.currentTarget).html(iconEl);
-    }).catch(function (e) {
-      console.error(e);
-    });
-  });
-
-  btnMute.on('click', function (event) {
-
-    event.preventDefault();
-
-    controller.mute().then(function (status) {
-      console.log(status, 'audio');
-      var icon = 'volume_off';
-      var text = 'Disable Sound';
-      if (!status) {
-        text = 'Enable Sound';
-        icon = 'volume_up';
-      }
-
-      var iconEl = '<i class="material-icons left">' + icon + '</i>';
-      $(event.currentTarget).html(iconEl);
-    }).catch(function (e) {
-      console.error(e);
-    });
-
-    console.log('mute other peer');
-  });
-
-  btnMic.on('click', function (event) {
-
-    event.preventDefault();
-
-    controller.disableMic().then(function (status) {
-      console.log(status, 'mic');
-      var icon = 'mic_off';
-      var text = 'Disable Microphone';
-      if (!status) {
-        icon = 'mic';
-        text = 'Enable Microphone';
-      }
-
-      var iconEl = '<i class="material-icons left">' + icon + '</i>';
-      $(event.currentTarget).html(iconEl);
-    }).catch(function (e) {
-      console.error(e);
-    });
-  });
-
-  btnHangout.on('click', function (event) {
-
-    event.preventDefault();
-
-    console.log('hangout');
+    var item = $(e.currentTarget).parent().attr('data-name');
+    removeParticipant(item);
   });
 }
+
+function removeParticipant(item) {
+  var section = $('.conversations');
+  var collection = section.find('.participant-list');
+  var element = collection.find('li[data-name="' + item + '"]');
+  element.remove();
+}
+
+Handlebars.getTemplate = function (name) {
+
+  return new Promise(function (resolve, reject) {
+
+    if (Handlebars.templates === undefined || Handlebars.templates[name] === undefined) {
+      Handlebars.templates = {};
+    } else {
+      resolve(Handlebars.templates[name]);
+    }
+
+    $.ajax({
+      url: 'templates/' + name + '.hbs',
+      success: function success(data) {
+        Handlebars.templates[name] = Handlebars.compile(data);
+        resolve(Handlebars.templates[name]);
+      },
+
+      fail: function fail(reason) {
+        reject(reason);
+      }
+    });
+  });
+};
 
 },{"./support":296,"array.observe":1,"babel-polyfill":2,"indexeddbshim":291,"mutationobserver-shim":292,"object.observe":293}],296:[function(require,module,exports){
 'use strict';
@@ -11190,6 +11156,25 @@ function serialize() {
         o[this.name].push(this.value || '');
       } else {
         o[this.name] = this.value || '';
+      }
+    });
+
+    return o;
+  };
+
+  $.fn.serializeObjectArray = function () {
+    var o = {};
+    var a = this.serializeArray();
+    $.each(a, function () {
+      if (o[this.name] !== undefined) {
+        if (!o[this.name].push) {
+          o[this.name] = [o[this.name]];
+        }
+
+        o[this.name].push(this.value || '');
+      } else {
+        if (!o[this.name]) o[this.name] = [];
+        o[this.name].push(this.value || '');
       }
     });
 
