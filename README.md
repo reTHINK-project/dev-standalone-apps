@@ -24,7 +24,7 @@ WebRTC APIs are available in Crosswalk 5 or later on ARM; and Crosswalk 7.36.154
 The diagram below shows the architecture of the appplication. The hybrid application is created with Cordova which allows to access different sensors and services of the phone through a Javascript API. Cordova connects the App the Crosswalk Webview which is the part of the code which implements the WebRTC stack. Crosswalk will give a consistent Webview implementation across all the Android versions and it will guarantee that the reTHINK runtime will be executed correctly.
 
 ![Standalone Android App](MobileAppAndroidDiagram.png)
-
+<!--
 ### Building the reTHINK Android application
 
 #### Installing prerequisites
@@ -87,3 +87,4 @@ In iOS the architecture is slightly different from the Android architecture. Cor
 2.	Open application project with XCode: sippo-ios/app/Sippo.xcodeproj.
 3.	Set the target location: change default values defined at Root.plist file (Settings.bundle->Root.plist in XCode project explorer).
 4.	Build application.
+-->
