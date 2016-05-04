@@ -24,50 +24,27 @@ WebRTC APIs are available in Crosswalk 5 or later on ARM; and Crosswalk 7.36.154
 The diagram below shows the architecture of the appplication. The hybrid application is created with Cordova which allows to access different sensors and services of the phone through a Javascript API. Cordova connects the App the Crosswalk Webview which is the part of the code which implements the WebRTC stack. Crosswalk will give a consistent Webview implementation across all the Android versions and it will guarantee that the reTHINK runtime will be executed correctly.
 
 ![Standalone Android App](MobileAppAndroidDiagram.png)
-<!--
+
 ### Building the reTHINK Android application
 
 #### Installing prerequisites
 
-**openjdk-7:**
+**cordova**
 
-<code>sudo apt-get install openjdk-7-jdk</code>
+<code>install -g cordova</code>
 
-**ant:**
+**android sdk tools**
 
-<code>sudo apt-get install ant</code>
-
-**android sdk:**
-
-<code>cd /opt/</code>
-
-<code>curl -O http://dl.google.com/android/android-sdk_r22.6.2-linux.tgz</code>
-
-<code>./android-sdk-linux/tools./android</code>
-
-This last command will install the default list of packages. This process may take quite a while.
+Follow this instructions: [Download Android Studio and SDK Tools](https://developer.android.com/sdk/index.html)
 
 #### Building the application
 
-It is necessary to indicate the public URL of the Web App which is going to be loaded in the hybrid App. In next releases it may be possible to load the HTML5/CSS/JS files in the own App.
+````
+    npm install
+    cordova run android
+````
 
-<code>make RETHINKWEBAPPURI="http://..."</code>
-
-<code>source build.env</code>
-
-<code>make </code>
-
-#### Build the standalone application with Eclipse
-
-It is also possible to build the standalone application using Eclipse. The general steps to build the application are included below:
-
-1.	Launch eclipse
-2.	Import xwalk-core-library project (3rdparty/xwalk_core_library/)
-3.	Import Cordova project (3rdparty/crosswalk-cordova-android/framework/)
-4.	Import standalone-ios project
-5.	Set the URL of the web application using reTHINK framework to be executed in the runtime application.
-6.	Build standalon-ios project as an Android application
-
+<!--
 ### iOS standalone application
 
 In iOS the architecture is slightly different from the Android architecture. Cordova is also use to build the application but the WebRTC stack will be provided by the eface2face plugin which includes a complete WebRTC library. In the Android App this is provided by Crosswalk. In iOS a complete simulation of the official WebRTC stack is provided by [!cordova-plugin-iosrtc](https://github.com/eface2face/cordova-plugin-iosrtc). It implementes the official [!WebRTC W3C API](https://www.w3.org/TR/webrtc/) and includes a compiled library with all the WebRTC code. The rest of the Javascript APIs that are required to execute the reTHINK runtime will be provided by Cordova.
