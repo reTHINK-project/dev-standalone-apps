@@ -12,6 +12,9 @@
         },
         "cordova-plugin-whitelist": {
             "PACKAGE_NAME": "eu.rethink.demos"
+        },
+        "cordova-plugin-inappbrowser": {
+            "PACKAGE_NAME": "eu.rethink.demos"
         }
     },
     "dependent_plugins": {}

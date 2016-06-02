@@ -12,12 +12,34 @@
         },
         "cordova-plugin-whitelist": {
             "PACKAGE_NAME": "io.cordova.hellocordova"
+        },
+        "cordova-plugin-inappbrowser": {
+            "PACKAGE_NAME": "eu.rethink.demos"
         }
     },
     "dependent_plugins": {},
-    "modules": [],
+    "modules": [
+        {
+            "file": "plugins/cordova-plugin-inappbrowser/www/inappbrowser.js",
+            "id": "cordova-plugin-inappbrowser.inappbrowser",
+            "pluginId": "cordova-plugin-inappbrowser",
+            "clobbers": [
+                "cordova.InAppBrowser.open",
+                "window.open"
+            ]
+        },
+        {
+            "file": "plugins/cordova-plugin-inappbrowser/src/browser/InAppBrowserProxy.js",
+            "id": "cordova-plugin-inappbrowser.InAppBrowserProxy",
+            "pluginId": "cordova-plugin-inappbrowser",
+            "merges": [
+                ""
+            ]
+        }
+    ],
     "plugin_metadata": {
         "cordova-plugin-crosswalk-webview": "1.6.1",
-        "cordova-plugin-whitelist": "1.2.1"
+        "cordova-plugin-whitelist": "1.2.1",
+        "cordova-plugin-inappbrowser": "1.4.0"
     }
 }

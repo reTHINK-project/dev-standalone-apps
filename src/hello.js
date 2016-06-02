@@ -39,7 +39,8 @@ function documentReady() {
   let hypertyHolder = $('.hyperties');
   hypertyHolder.removeClass('hide');
 
-  window.rethink.default.install(domain).then(runtimeInstalled).catch(errorMessage);
+  window.rethink.default.install({runtimeURL: "https://" +domain+ "/runtime/Runtime", development: true})
+                      .then(runtimeInstalled).catch(errorMessage);
 }
 
 function runtimeInstalled(runtime) {

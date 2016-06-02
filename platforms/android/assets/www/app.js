@@ -10788,7 +10788,7 @@ function documentReady() {
 
   var hyperty = 'hyperty-catalogue://' + domain + '/.well-known/hyperty/HypertyConnector';
 
-  window.rethink.default.install(domain).then(function (runtime) {
+  window.rethink.default.install({ runtimeURL: "https://" + domain + "/runtime/Runtime", development: true }).then(function (runtime) {
     console.log(runtime, hyperty);
     runtime.requireHyperty(hyperty).then(hypertyDeployed).catch(function (reason) {
       (0, _support.errorMessage)(reason);
