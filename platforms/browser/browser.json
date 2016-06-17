@@ -15,6 +15,9 @@
         },
         "cordova-plugin-inappbrowser": {
             "PACKAGE_NAME": "eu.rethink.demos"
+        },
+        "cordova-plugin-bluetoothle": {
+            "PACKAGE_NAME": "eu.rethink.demos"
         }
     },
     "dependent_plugins": {},
@@ -35,11 +38,20 @@
             "merges": [
                 ""
             ]
+        },
+        {
+            "file": "plugins/cordova-plugin-bluetoothle/www/bluetoothle.js",
+            "id": "cordova-plugin-bluetoothle.BluetoothLe",
+            "pluginId": "cordova-plugin-bluetoothle",
+            "clobbers": [
+                "window.bluetoothle"
+            ]
         }
     ],
     "plugin_metadata": {
         "cordova-plugin-crosswalk-webview": "1.6.1",
         "cordova-plugin-whitelist": "1.2.1",
-        "cordova-plugin-inappbrowser": "1.4.0"
+        "cordova-plugin-inappbrowser": "1.4.0",
+        "cordova-plugin-bluetoothle": "4.0.0"
     }
 }

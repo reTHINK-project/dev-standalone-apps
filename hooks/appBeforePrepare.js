@@ -5,7 +5,7 @@ var ncp = require('ncp').ncp;
 function bundle(context, file_name, source, target){
     var Q = context.requireCordovaModule('q');
     var deferral = new Q.defer();
-    
+
 	var outFile = fs.createWriteStream(target + '/' + file_name);
     browserify(source + "/" + file_name)
     .transform("babelify", {presets: ["es2015"]})
@@ -23,7 +23,7 @@ function bundle(context, file_name, source, target){
 function copy(context, file_name, source, target){
     var Q = context.requireCordovaModule('q');
     var deferral = new Q.defer();
-    
+
 	var outFile = fs.createWriteStream(target + '/' + file_name);
     fs.createReadStream(source + '/' + file_name)
         .pipe(outFile);
@@ -45,6 +45,9 @@ module.exports = function(context) {
         .then(copy(context, 'helloObserver.js', 'src', 'www'))
         .then(copy(context, 'helloReporter.js', 'src', 'www'))
         .then(copy(context, 'index2.html', 'src', 'www'))
+        .then(copy(context, 'index3.html', 'src', 'www'))
+        .then(copy(context, 'bracelet.js', 'src', 'www'))
         .then(copy(context, 'hello.html', 'src', 'www'))
         .then(ncp('src/templates', 'www/templates'));
+
 }

@@ -35,6 +35,10 @@
                         {
                             "xml": "<feature name=\"InAppBrowser\"><param name=\"android-package\" value=\"org.apache.cordova.inappbrowser.InAppBrowser\" /></feature>",
                             "count": 1
+                        },
+                        {
+                            "xml": "<feature name=\"BluetoothLePlugin\"><param name=\"android-package\" value=\"com.randdusing.bluetoothle.BluetoothLePlugin\" /></feature>",
+                            "count": 1
                         }
                     ]
                 }
@@ -50,6 +54,20 @@
                             "xml": "<uses-permission android:name=\"android.permission.ACCESS_WIFI_STATE\" />",
                             "count": 1
                         }
+                    ],
+                    "/manifest": [
+                        {
+                            "xml": "<uses-permission android:name=\"android.permission.BLUETOOTH\" />",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<uses-permission android:name=\"android.permission.BLUETOOTH_ADMIN\" />",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<uses-permission android:name=\"android.permission.ACCESS_COARSE_LOCATION\" />",
+                            "count": 1
+                        }
                     ]
                 }
             }
@@ -63,6 +81,9 @@
             "PACKAGE_NAME": "eu.rethink.demos"
         },
         "cordova-plugin-inappbrowser": {
+            "PACKAGE_NAME": "eu.rethink.demos"
+        },
+        "cordova-plugin-bluetoothle": {
             "PACKAGE_NAME": "eu.rethink.demos"
         }
     },
@@ -80,11 +101,19 @@
                 "cordova.InAppBrowser.open",
                 "window.open"
             ]
+        },
+        {
+            "file": "plugins/cordova-plugin-bluetoothle/www/bluetoothle.js",
+            "id": "cordova-plugin-bluetoothle.BluetoothLe",
+            "clobbers": [
+                "window.bluetoothle"
+            ]
         }
     ],
     "plugin_metadata": {
         "cordova-plugin-crosswalk-webview": "1.6.1",
         "cordova-plugin-whitelist": "1.2.1",
-        "cordova-plugin-inappbrowser": "1.4.0"
+        "cordova-plugin-inappbrowser": "1.4.0",
+        "cordova-plugin-bluetoothle": "4.0.0"
     }
 }

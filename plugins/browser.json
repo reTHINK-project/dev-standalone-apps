@@ -15,6 +15,9 @@
         },
         "cordova-plugin-inappbrowser": {
             "PACKAGE_NAME": "eu.rethink.demos"
+        },
+        "cordova-plugin-bluetoothle": {
+            "PACKAGE_NAME": "eu.rethink.demos"
         }
     },
     "dependent_plugins": {}

@@ -16,6 +16,14 @@ module.exports = [
         "merges": [
             ""
         ]
+    },
+    {
+        "file": "plugins/cordova-plugin-bluetoothle/www/bluetoothle.js",
+        "id": "cordova-plugin-bluetoothle.BluetoothLe",
+        "pluginId": "cordova-plugin-bluetoothle",
+        "clobbers": [
+            "window.bluetoothle"
+        ]
     }
 ];
 module.exports.metadata = 
@@ -23,7 +31,8 @@ module.exports.metadata =
 {
     "cordova-plugin-crosswalk-webview": "1.6.1",
     "cordova-plugin-whitelist": "1.2.1",
-    "cordova-plugin-inappbrowser": "1.4.0"
+    "cordova-plugin-inappbrowser": "1.4.0",
+    "cordova-plugin-bluetoothle": "4.0.0"
 }
 // BOTTOM OF METADATA
 });

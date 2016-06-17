@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merger version="3"><dataSet config="main"><source path="/Users/dvilchez/workspace/rethink/dev-standalone/platforms/android/CordovaLib/assets"/></dataSet><dataSet config="release"><source path="/Users/dvilchez/workspace/rethink/dev-standalone/platforms/android/CordovaLib/src/release/assets"/></dataSet></merger>
+<merger version="3"><dataSet config="main"><source path="/home/luis/Documents/rethink/dev-standalone-apps/platforms/android/CordovaLib/assets"/></dataSet><dataSet config="release"><source path="/home/luis/Documents/rethink/dev-standalone-apps/platforms/android/CordovaLib/src/release/assets"/></dataSet></merger>
