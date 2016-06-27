@@ -9,9 +9,9 @@
 var avatar = 'https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg';
 
 // You can change this at your own domain
-var  domain ="luis.dev" ;
-var config = {runtimeURL: "https://" +domain+ "/runtime/Runtime", development: true} ;
-
+var  domain ="hybroker.rethink.ptinovacao.pt" ;
+//var config = {runtimeURL: "https://catalogue." +domain+ "/.well-known/runtime/Runtime", development: false} ;
+var config = {runtimeURL: "https://" +domain+ "/.well-known/runtime/Runtime", development: true} ;
 // Hack because the GraphConnector jsrsasign module;
 window.KJUR = {};
 
@@ -27,6 +27,7 @@ if (document.readyState === 'complete') {
 function documentReady() {
 
   var hyperty = 'hyperty-catalogue://' + domain + '/.well-known/hyperty/BraceletSensorReporter';
+  //var hyperty = 'hyperty-catalogue://catalogue.' + domain + '/.well-known/hyperty/BraceletSensorReporter';
   console.log('onDocumentReady');
   window.rethink.default.install(config)
       .then(function (runtime) {
@@ -60,6 +61,40 @@ function hypertyDeployed(result) {
       bracelet.Connect(address);
     });
   })});
+
+  bracelet.onDataChange(function(data) {
+    var lblBattery = $('.bt-label');
+    lblBattery.removeClass('hide');
+
+    var lblSteps = $('.steps-label');
+    lblSteps.removeClass('hide');
+
+    var lblTime = $('.time-label');
+    lblSteps.removeClass('hide');
+
+
+    var stepValue = $('.value_step');
+    var timeValue = $('.value_time');
+    var batteryValue = $('.value_battery');
+
+
+    console.log('new event', data);
+    var type = data.type;
+    console.log('type', type);
+
+    var date = new Date(data.time);
+
+    if (type === 'battery') {
+      batteryValue.text(data.value);
+      timeValue.text(date);
+      console.log(data.value);
+    } else if (type === 'user_steps') {
+        stepValue.text(data.value);
+        timeValue.text(date);
+        console.log(data.value);
+    }
+  });
+
 
   button.removeClass("hide");
   progress.addClass("hide");
