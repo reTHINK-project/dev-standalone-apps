@@ -10,8 +10,8 @@ var avatar = 'https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAA
 
 // You can change this at your own domain
 var  domain ="hybroker.rethink.ptinovacao.pt" ;
-//var config = {runtimeURL: "https://catalogue." +domain+ "/.well-known/runtime/Runtime", development: false} ;
-var config = {runtimeURL: "https://" +domain+ "/.well-known/runtime/Runtime", development: true} ;
+var config = {runtimeURL: "https://catalogue." +domain+ "/.well-known/runtime/Runtime", development: false} ;
+//var config = {runtimeURL: "https://" +domain+ "/.well-known/runtime/Runtime", development: true} ;
 // Hack because the GraphConnector jsrsasign module;
 window.KJUR = {};
 
@@ -26,8 +26,8 @@ if (document.readyState === 'complete') {
 
 function documentReady() {
 
-  var hyperty = 'hyperty-catalogue://' + domain + '/.well-known/hyperty/BraceletSensorReporter';
-  //var hyperty = 'hyperty-catalogue://catalogue.' + domain + '/.well-known/hyperty/BraceletSensorReporter';
+  //var hyperty = 'hyperty-catalogue://' + domain + '/.well-known/hyperty/BraceletSensorReporter';
+  var hyperty = 'hyperty-catalogue://catalogue.' + domain + '/.well-known/hyperty/BraceletSensorReporter';
   console.log('onDocumentReady');
   window.rethink.default.install(config)
       .then(function (runtime) {
