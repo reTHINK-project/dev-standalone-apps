@@ -10,8 +10,8 @@ var avatar = 'https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAA
 
 // You can change this at your own domain
 var  domain ="hybroker.rethink.ptinovacao.pt" ;
-var config = {runtimeURL: "https://catalogue." +domain+ "/.well-known/runtime/Runtime", development: false} ;
-//var config = {runtimeURL: "https://" +domain+ "/.well-known/runtime/Runtime", development: true} ;
+//var config = {runtimeURL: "https://catalogue." +domain+ "/.well-known/runtime/Runtime", development: false} ;
+var config = {runtimeURL: "https://" +domain+ "/.well-known/runtime/Runtime", development: true} ;
 // Hack because the GraphConnector jsrsasign module;
 window.KJUR = {};
 
@@ -26,8 +26,7 @@ if (document.readyState === 'complete') {
 
 function documentReady() {
 
-  //var hyperty = 'hyperty-catalogue://' + domain + '/.well-known/hyperty/BraceletSensorReporter';
-  var hyperty = 'hyperty-catalogue://catalogue.' + domain + '/.well-known/hyperty/BraceletSensorReporter';
+  var hyperty = 'hyperty-catalogue://' + domain + '/.well-known/hyperty/BraceletSensorReporter';
   console.log('onDocumentReady');
   window.rethink.default.install(config)
       .then(function (runtime) {
@@ -47,18 +46,41 @@ function hypertyDeployed(result) {
   bracelet = result.instance;
   var button = $('.discover-btn');
   var collection = $('.collection');
-  var progress = $('.progress');
+  var progressLoad = $('.loading-progress');
+  var progressDiscover = $('.discovering-progress');
+  var progressConnection = $('.status-progress');
+  var statusLabel = $('.status-label');
+  var statusText = $('.status_value');
 
-  button.on("click", function(event){ bracelet.Discover().then(function(result){
+  button.on("click", function(event){ progressDiscover.removeClass("hide"); statusText.text('Discovering..'); bracelet.Discover().then(function(result){
+    console.log('result ', result);
     collection.empty();
+    progressDiscover.addClass("hide");
+    if (result.length > 0) statusText.text('Discover Result.. You can Connect Now');
+    else statusText.text('Try again..');
     result.forEach(function(item){
-      collection.append('<a href="#!" class="collection-item" data-id='+item.id+' >'+item.name+'<span class="right">'+item.id+'</span></a>');
-
+      collection.append('<a href="#!" class="collection-item"  style="height:60px; margin-top:10px; margin-bottom:10px" data-id='+item.id+' >'+item.name+'<span class="right">'+item.id+'</span></a>');
     });
     collection.find('.collection-item').on("click", function(event){
-
       var address = $(event.target).attr('data-id');
-      bracelet.Connect(address);
+      if (address) {
+        statusText.text('Connecting to address: ' + address);
+        progressConnection.removeClass("hide");
+      }
+      else {
+        statusText.text('Click again for connect..');
+      }
+
+      bracelet.Connect(address).then(function(status) {
+        console.log('connection status ->', status);
+        if (status == 'connected') {
+          progressConnection.addClass("hide");
+          statusText.text('Connected to address: ' + address);
+        } else if (status == 'reconnecting') {
+          progressConnection.removeClass("hide");
+          statusText.text('Disconnected.. Trying to Reconnect to ' + address);
+        }
+      });
     });
   })});
 
@@ -70,7 +92,7 @@ function hypertyDeployed(result) {
     lblSteps.removeClass('hide');
 
     var lblTime = $('.time-label');
-    lblSteps.removeClass('hide');
+    lblTime.removeClass('hide');
 
 
     var stepValue = $('.value_step');
@@ -95,7 +117,19 @@ function hypertyDeployed(result) {
     }
   });
 
+  bracelet.onStatusChange(function(status) {
+    if (status.connection == 'connected') {
+      progressConnection.addClass("hide");
+      statusText.text('Connected to ' + status.address);
+    } else if (status.connection == 'reconnecting') {
+      progressConnection.removeClass("hide");
+      statusText.text('Disconnected from ' + status.address + '.. Trying to Reconnect');
+    }
+  });
+
 
   button.removeClass("hide");
-  progress.addClass("hide");
+  progressLoad.addClass("hide");
+  statusText.removeClass("hide");
+  statusLabel.removeClass("hide");
 }
