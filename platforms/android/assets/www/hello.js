@@ -11152,4 +11152,102 @@ function runtimeInstalled(runtime) {
   });
 }
 
-},{"./support":304,"array.observe":1,"babel-polyfill":2,"indexeddbshim":298,"mutationobserver-shim":299,"object.observe":300}]
+},{"./support":304,"array.observe":1,"babel-polyfill":2,"indexeddbshim":298,"mutationobserver-shim":299,"object.observe":300}],304:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.addLoader = addLoader;
+exports.removeLoader = removeLoader;
+exports.ready = ready;
+exports.errorMessage = errorMessage;
+exports.getUserMedia = getUserMedia;
+exports.serialize = serialize;
+// jshint browser:true, jquery: true
+/* global Handlebars */
+
+function addLoader(target) {
+  var html = '<div class="preloader-wrapper small active"><div class="spinner-layer spinner-blue-only"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div></div>';
+
+  target.addClass('center-align');
+  target.html(html);
+}
+
+function removeLoader(target) {
+  target.children('.preloader-wrapper').remove();
+  target.removeClass('center-align');
+}
+
+function ready() {
+  var progress = document.querySelector('.progress');
+  progress.parentElement.removeChild(progress);
+
+  var container = document.querySelector('.container');
+  container.className = container.className.replace('hide', '');
+
+  serialize();
+}
+
+function errorMessage(reason) {
+  console.error(reason);
+}
+
+/**
+ * Get WebRTC API resources
+ * @param  {Object}     options Object containing the information that resources will be used (camera, mic, resolution, etc);
+ * @return {Promise}
+ */
+function getUserMedia(constraints) {
+
+  return new Promise(function (resolve, reject) {
+
+    navigator.mediaDevices.getUserMedia(constraints).then(function (mediaStream) {
+      resolve(mediaStream);
+    }).catch(function (reason) {
+      reject(reason);
+    });
+  });
+}
+
+function serialize() {
+
+  $.fn.serializeObject = function () {
+    var o = {};
+    var a = this.serializeArray();
+    $.each(a, function () {
+      if (o[this.name] !== undefined) {
+        if (!o[this.name].push) {
+          o[this.name] = [o[this.name]];
+        }
+
+        o[this.name].push(this.value || '');
+      } else {
+        o[this.name] = this.value || '';
+      }
+    });
+
+    return o;
+  };
+
+  $.fn.serializeObjectArray = function () {
+    var o = {};
+    var a = this.serializeArray();
+    $.each(a, function () {
+      if (o[this.name] !== undefined) {
+        if (!o[this.name].push) {
+          o[this.name] = [o[this.name]];
+        }
+
+        o[this.name].push(this.value || '');
+      } else {
+        if (!o[this.name]) o[this.name] = [];
+        o[this.name].push(this.value || '');
+      }
+    });
+
+    return o;
+  };
+}
+
+},{}]},{},[303]);

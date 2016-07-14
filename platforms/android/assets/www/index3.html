@@ -20,18 +20,28 @@
 </head>
 <body>
 
-  <div class="progress"><div class="indeterminate"></div></div>
 
-  <button class="discover-btn hide btn waves-effect waves-light">Discover</button>
+  <div class="progress loading-progress"><div class="indeterminate"></div></div>
+  <a class="last-label hide"></a>
+  <button class="connect-btn hide btn waves-effect waves-light">Connect</button>
+
+  <button class="discover-btn hide btn waves-effect waves-light">Discover others</button>
+
+  <div class="progress discovering-progress hide"><div class="indeterminate"></div></div>
+
   <div class="row">
     <ul class="collection ">
     </ul>
   </div>
+
+  <a class="status-label hide">Status:</a>
+  <span class="status_value hide">Lets Discover some Devices!!</span><br><br>
+  <div class="progress status-progress hide"><div class="indeterminate"></div></div>
   <a class="bt-label hide">Battery:</a>
   <span class="value_battery"></span><br>
   <a class="steps-label hide">Steps:</a>
   <span class="value_step"></span><br><br>
-  <a class="time-label hide">Time:</a>
+  <a class="time-label hide">Last Read:</a>
   <span class="value_time"></span><br><br>
 
     <script type="text/javascript" src="https://hybroker.rethink.ptinovacao.pt/.well-known/runtime/rethink.js"></script>

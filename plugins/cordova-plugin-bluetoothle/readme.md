@@ -2,8 +2,9 @@
 This plugin allows you to interact with Bluetooth LE devices on Android, iOS, and partially on Windows.
 
 
-## Available for Hire ##
-I'm available for hire on Bluetooth Low Energy, Ionic and Cordova projects. This would really help keep the project alive and up to date. You can contact me via: <randdusing@gmail.com>, [Facebook](https://www.facebook.com/randdusing), [LinkedIn](https://www.linkedin.com/in/randdusing) or [Twitter](https://twitter.com/randdusing) for more information.
+## ~~Available for Hire~~ ##
+I'm no longer available for hire at the moment, but I'm still open to questions. You can contact me via: <randdusing@gmail.com>, [Facebook](https://www.facebook.com/randdusing), [LinkedIn](https://www.linkedin.com/in/randdusing) or [Twitter](https://twitter.com/randdusing).
+If you're questions could help others, please post them here as I'd would like to start an FAQ section.
 
 
 ## Requirements ##
@@ -36,7 +37,6 @@ I'm available for hire on Bluetooth Low Energy, Ionic and Cordova projects. This
 ## To Do ##
 
 * Expand Windows support
-* Operation queueing on Android (possibly). See Queuing section below.
 * Improved notifications on peripheral/server role between Android and iOS
 * Code refactoring. It's getting pretty messy.
 
@@ -45,7 +45,7 @@ I'm available for hire on Bluetooth Low Energy, Ionic and Cordova projects. This
 
 Check out ng-cordova-bluetoothle [here!](https://github.com/randdusing/ng-cordova-bluetoothle)
 
-If timeouts or queueing is needed, please check out the Angular wrapper and its example. I don't plan to implement queuing within the plugin itself anymore.
+If timeouts are needed, please check out the Angular wrapper and its example.
 
 
 ## Installation ##
@@ -64,9 +64,7 @@ The latest version of the plugin requires you to set the Android target API to a
 
 
 ## Background Modes (iOS) ##
-Background modes have been changed, so follow the steps below:
-1. Background mode(s) are no longer added to your project's plist file by default. They can be added manually by editing the plist file, or you can use the following plugins: [cordova-plugin-background-mode-bluetooth-central](https://github.com/randdusing/cordova-plugin-background-mode-bluetooth-central) and/or [cordova-plugin-background-mode-bluetooth-peripheral](https://github.com/randdusing/cordova-plugin-background-mode-bluetooth-peripheral).
-2. Restore identifiers must be specified when calling initialize and/or initializePeripheral using the restoreKey parameter. See initialize and initializePeripheral for details.
+Background mode(s) are no longer added to your project's plist file by default. They can be added manually by editing the plist file, or you can use the following plugins: [cordova-plugin-background-mode-bluetooth-central](https://github.com/randdusing/cordova-plugin-background-mode-bluetooth-central) and/or [cordova-plugin-background-mode-bluetooth-peripheral](https://github.com/randdusing/cordova-plugin-background-mode-bluetooth-peripheral).
 
 Scanning works differently in the background. There seem to be three different states:
 
@@ -80,10 +78,7 @@ Discovery works differently between Android and iOS. In Android, a single functi
 
 
 ## Queuing (Android) ##
-Android commands must be queued. I recommend using promises like in the AngularJS wrapper to queue from the app level. There are a few issues when trying to queue from the plugin level, so I'm still determining how to implement it:
-1. Queuing needs to be done at a "global" level rather than per connection.
-2. Timeouts would be needed so that the queue would continue processing if onCharacteristicRead, onCharacteristicWrite, etc are never called.
-3. Queue would need to be "cleaned" if a device disconnects.
+Read, write, subscribe, unsubscribe, readDescriptor and writeDescriptor queueing has been added to the master branch and will be part of the 4.1.0 release. If you'd like to try it out, install the plugin directly from GitHub using: ```cordova plugin https://github.com/randdusing/cordova-plugin-bluetoothle```
 
 
 ## UUIDs ##
@@ -97,6 +92,9 @@ On iOS, the MAC address is hidden from the advertisement packet, and the address
 One option is to set Manufacturer Specific Data in the advertisement packet if that's possible in your project.
 Another option is to connect to the device and use the "Device Information" (0x180A) service, but connecting to each device is much more energy intensive than scanning for advertisement data.
 See the following StackOverflow posts for more info: [here](https://stackoverflow.com/questions/18973098/get-mac-address-of-bluetooth-low-energy-peripheral) and [here](https://stackoverflow.com/questions/22833198/get-advertisement-data-for-ble-in-ios)
+
+
+## Data Values ##
 
 
 ## Emulator ##
@@ -132,6 +130,7 @@ Neither Android nor iOS support Bluetooth on emulators, so you'll need to test o
 * [bluetoothle.isInitialized] (#isinitialized)
 * [bluetoothle.isEnabled] (#isenabled)
 * [bluetoothle.isScanning] (#isscanning)
+* [bluetoothle.wasConnected] (#wasconnected)
 * [bluetoothle.isConnected] (#isconnected)
 * [bluetoothle.isDiscovered] (#isdiscovered)
 * [bluetoothle.hasPermission] (#haspermission) (Android 6+)
@@ -219,16 +218,16 @@ Characteristics can have the following different properties: broadcast, read, wr
 
 
 ### initialize ###
-Initialize Bluetooth on the device. Must be called before anything else. Callback will continuously be used whenever Bluetooth is enabled or disabled. Note: Although Bluetooth initialization could initially be successful, there's no guarantee whether it will stay enabled. Each call checks whether Bluetooth is disabled. If it becomes disabled, the user must connect to the device, start a read/write operation, etc again. If Bluetooth is disabled, you can request the user to enable it by setting the request property to true. The `request` property in the `params` argument is optional and defaults to false. This function should only be called once.
+Initialize Bluetooth on the device. Must be called before anything else. Callback will continuously be used whenever Bluetooth is enabled or disabled. Note: Although Bluetooth initialization could initially be successful, there's no guarantee whether it will stay enabled. Each call checks whether Bluetooth is disabled. If it becomes disabled, the user must connect to the device, start a read/write operation, etc again. If Bluetooth is disabled, you can request the user to enable it by setting the request property to true. The `request` property in the `params` argument is optional and defaults to false. The `restoreKey` property requires using the Bluetooth Central background mode. This function should only be called once.
 
 ```javascript
-bluetoothle.initialize(initializeSuccess, initializeError, params);
+bluetoothle.initialize(initializeResult, params);
 ```
 
 ##### Params #####
 * request = true / false (default) - Should user be prompted to enable Bluetooth
 * statusReceiver = true (default) / false - Should change in Bluetooth status notifications be sent.
-* restoreKey = A unique string to identify your app. Required if Bluetooth central background mode is enabled.
+* restoreKey = A unique string to identify your app. Bluetooth Central background mode is required to use this, but background mode doesn't seem to require specifying the restoreKey.
 
 ```javascript
 {
@@ -947,7 +946,7 @@ bluetoothle.read(readSuccess, readError, params);
 ```javascript
 {
   "status": "read",
-  "value": "AQ==",
+  "value": "UmVhZCBIZWxsbyBXb3JsZA==", //Read Hello World
   "characteristic": "2a38",
   "name": "Polar H7 3B321015",
   "service": "180d",
@@ -957,7 +956,7 @@ bluetoothle.read(readSuccess, readError, params);
 
 
 ### subscribe ###
-Subscribe to a particular service's characteristic. Once a subscription is no longer needed, execute unsubscribe in a similar fashion. The Client Configuration descriptor will automatically be written to enable notification/indication.
+Subscribe to a particular service's characteristic. Once a subscription is no longer needed, execute unsubscribe in a similar fashion. The Client Configuration descriptor will automatically be written to enable notification/indication based on the characteristic's properties.
 
 ```javascript
 bluetoothle.subscribe(subscribeSuccess, subscribeError, params);
@@ -967,14 +966,12 @@ bluetoothle.subscribe(subscribeSuccess, subscribeError, params);
 * address = The address/identifier provided by the scan's return object
 * service = The service's UUID
 * characteristic = The characteristic's UUID
-* isNotification is only required on Android. True (or null) means notification will be enabled. False means indication will be enabled.
 
 ```javascript
 {
   "address": "ECC037FD-72AE-AFC5-9213-CA785B3B5C63",
   "service": "180d",
   "characteristic": "2a37",
-  "isNotification" : true
 }
 ```
 
@@ -996,7 +993,7 @@ bluetoothle.subscribe(subscribeSuccess, subscribeError, params);
 
 {
   "status": "subscribedResult",
-  "value": "BkY=",
+  "value": "U3Vic2NyaWJlIEhlbGxvIFdvcmxk", //Subscribe Hello World
   "characteristic": "2a37",
   "name": "Polar H7 3B321015",
   "service": "180d",
@@ -1060,21 +1057,21 @@ bluetoothle.write(writeSuccess, writeError, params);
 Value is a base64 encoded string of bytes to write. Use bluetoothle.bytesToEncodedString(bytes) to convert to base64 encoded string from a unit8Array.
 To write without response, set type to "noResponse". Any other value will default to write with response. Note, no callback will occur on write without response on iOS.
 ```javascript
-var string = "Hello World";
+var string = "Write Hello World";
 var bytes = bluetoothle.stringToBytes(string);
 var encodedString = bluetoothle.bytesToEncodedString(bytes);
 
 //Note, this example doesn't actually work since it's read only characteristic
-{"value":encodedString,"service":"180F","characteristic":"2A19","type":"noResponse","address":"ABC123"}
+{"value":"V3JpdGUgSGVsbG8gV29ybGQ=","service":"180F","characteristic":"2A19","type":"noResponse","address":"ABC123"}
 ```
 
 ##### Success #####
 Value is a base64 encoded string of written bytes. Use bluetoothle.encodedStringToBytes(obj.value) to convert to a unit8Array. See characteristic's specification and example below on how to correctly parse this.
 
 ```javascript
-var returnObj = {"status":"written","service":"180F","characteristic":"2A19","value":"SGVsbG8gV29ybGQ=","address":"ABC123"}
+var returnObj = {"status":"written","service":"180F","characteristic":"2A19","value":"V3JpdGUgSGVsbG8gV29ybGQ=","address":"ABC123"}
 var bytes = bluetoothle.encodedStringToBytes(returnObj.value);
-var string = bluetoothle.bytesToString(bytes); //This should equal Hello World!
+var string = bluetoothle.bytesToString(bytes); //This should equal Write Hello World
 ```
 
 
@@ -1164,14 +1161,14 @@ var string = "Hello World";
 var bytes = bluetoothle.stringToBytes(string);
 var encodedString = bluetoothle.bytesToEncodedString(bytes);
 
-{"service":"180D","characteristic":"2A37","descriptor":"2902","value":encodedString,"address":"ABC123"}
+{"service":"180D","characteristic":"2A37","descriptor":"2902","value":"AQAAAAAAAAA=","address":"ABC123"}
 ```
 
 ##### Success #####
 Value is a base64 encoded string of written bytes. Use bluetoothle.encodedStringToBytes(obj.value) to convert to a unit8Array.
 
 ```javascript
-{"status":"writeDescriptor","service":"180D","characteristic":"2A37", "descriptor":"2902","value":"SGVsbG8gV29ybGQ","address":"ABC123"}
+{"status":"writeDescriptor","service":"180D","characteristic":"2A37", "descriptor":"2902","value":"AQAAAAAAAAA=","address":"ABC123"}
 var bytes = bluetoothle.encodedStringToBytes(returnObj.value);
 var string = bluetoothle.bytesToString(bytes); //This should equal Hello World!
 ```
@@ -1325,6 +1322,35 @@ bluetoothle.isScanning(isScanning);
 
 
 
+### wasConnected ###
+Determine whether the device was connected, or error if not initialized.
+
+```javascript
+bluetoothle.wasConnected(wasConnectedSuccess, wasConnectedError, params);
+```
+
+#### Params ####
+* address = The address/identifier provided by the scan's return object
+
+```javascript
+{
+  "address": "ECC037FD-72AE-AFC5-9213-CA785B3B5C63"
+}
+```
+
+##### Success #####
+* status => wasConnected = true/false
+
+```javascript
+{
+  "name": "Polar H7 3B321015",
+  "address": "ECC037FD-72AE-AFC5-9213-CA785B3B5C63",
+  "wasConnected": false
+}
+```
+
+
+
 ### isConnected ###
 Determine whether the device is connected, or error if not initialized or never connected to device.
 
@@ -1355,7 +1381,7 @@ bluetoothle.isConnected(isConnectedSuccess, isConnectedError, params);
 
 
 ### isDiscovered ###
-Determine whether the device's characteristics and descriptors have been discovered, or error if not initialized or never connected to device.
+Determine whether the device's characteristics and descriptors have been discovered, or error if not initialized or not connected to device. Note, on Android, you can connect, discover and then disconnect. isDiscovered will return an error due to the device not being connected. But if you call reconnect and call isDiscovered again, it will return isDiscovered => true since the device stays discovered until calling close().
 
 ```javascript
 bluetoothle.isDiscovered(isDiscoveredSuccess, isDiscoveredError, params);
@@ -1479,7 +1505,7 @@ iOS doesn't allow you to respond to read and write descriptor requests. Instead 
 
 
 ### initializePeripheral ###
-Initialize Bluetooth on the device. Must be called before anything else. Callback will continuously be used whenever Bluetooth is enabled or disabled. Note: Although Bluetooth initialization could initially be successful, there's no guarantee whether it will stay enabled. Each call checks whether Bluetooth is disabled. If it becomes disabled, the user must readd services, start advertising, etc again. If Bluetooth is disabled, you can request the user to enable it by setting the request property to true. The `request` property in the `params` argument is optional and defaults to false. The `restoreKey` property is required when using the Bluetooth Peripheral background mode. This function should only be called once.
+Initialize Bluetooth on the device. Must be called before anything else. Callback will continuously be used whenever Bluetooth is enabled or disabled. Note: Although Bluetooth initialization could initially be successful, there's no guarantee whether it will stay enabled. Each call checks whether Bluetooth is disabled. If it becomes disabled, the user must readd services, start advertising, etc again. If Bluetooth is disabled, you can request the user to enable it by setting the request property to true. The `request` property in the `params` argument is optional and defaults to false. The `restoreKey` property requires using the Bluetooth Peripheral background mode. This function should only be called once.
 
 Additionally this where new events are delivered for read, write, and subscription requests. See the success section for more details.
 
@@ -1489,7 +1515,7 @@ bluetoothle.initializePeripheral(success, error, params);
 
 ##### Params #####
 * request = true / false (default) - Should user be prompted to enable Bluetooth
-* restoreKey = A unique string to identify your app. Required if Bluetooth peripheral background mode is enabled.
+* restoreKey = A unique string to identify your app.  Bluetooth Peripheral background mode is required to use this, but background mode doesn't seem to require specifying the restoreKey.
 
 ```javascript
 {
@@ -1526,7 +1552,7 @@ bluetoothle.initializePeripheral(success, error, params);
   "address":"5163F1E0-5341-AF9B-9F67-613E15EC83F7",
   "service":"1234",
   "characteristic":"ABCD",
-  requestId":0,
+  requestId":0, //This integer value will be incremented every read/writeRequested
   "offset":0
 }
 ```
@@ -1538,7 +1564,7 @@ bluetoothle.initializePeripheral(success, error, params);
   "address":"5163F1E0-5341-AF9B-9F67-613E15EC83F7",
   "service":"1234",
   "characteristic":"ABCD",
-  "requestId":2,
+  "requestId":1, //This integer value will be incremented every read/writeRequested
   "value":"V3JpdGUgSGVsbG8gV29ybGQ=", //Write Hello World
   "offset":0
 }
@@ -1630,8 +1656,7 @@ var params = {
         //authenticatedSignedWrites: true,
         //notifyEncryptionRequired: true,
         //indicateEncryptionRequired: true,
-      },
-      value: "base64encodedstring"
+      }
     }
   ]
 };

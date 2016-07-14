@@ -10,8 +10,11 @@ var avatar = 'https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAA
 
 // You can change this at your own domain
 var  domain ="hybroker.rethink.ptinovacao.pt" ;
+
 var config = {runtimeURL: "https://catalogue." +domain+ "/.well-known/runtime/Runtime", development: false} ;
-//var config = {runtimeURL: "https://" +domain+ "/.well-known/runtime/Runtime", development: true} ;
+
+//var config = {domain: domain, runtimeURL: "https://catalogue." +domain+ "/.well-known/runtime/Runtime", development: true} ;
+
 // Hack because the GraphConnector jsrsasign module;
 window.KJUR = {};
 
@@ -43,17 +46,47 @@ var bracelet;
 function hypertyDeployed(result) {
 
   console.log(result);
-
-  bracelet = result.instance;
   var button = $('.discover-btn');
+  var conBtn = $('.connect-btn');
   var collection = $('.collection');
   var progressLoad = $('.loading-progress');
   var progressDiscover = $('.discovering-progress');
   var progressConnection = $('.status-progress');
   var statusLabel = $('.status-label');
   var statusText = $('.status_value');
+  var lastLabel = $('.last-label');
+  bracelet = result.instance;
 
-  button.on("click", function(event){ progressDiscover.removeClass("hide"); statusText.text('Discovering..'); bracelet.Discover().then(function(result){
+  bracelet.onConnect(function(lastAddress) {
+    console.log('last device used', lastAddress);
+    if(lastAddress)
+    {
+
+      lastLabel.text('Last Connection was with address: '+ lastAddress);
+      lastLabel.removeClass('hide');
+
+      conBtn.removeClass('hide');
+      conBtn.on("click", function() {
+        statusText.text('Connecting to address: ' + lastAddress);
+        bracelet.Connect(lastAddress).then(function(status) {
+          console.log('connection status ->', status);
+          if (status == 'connected') {
+            progressConnection.addClass("hide");
+            statusText.text('Connected to address: ' + lastAddress);
+          } else if (status == 'reconnecting') {
+            progressConnection.removeClass("hide");
+            statusText.text('Disconnected.. Trying to Reconnect to ' + lastAddress);
+          }
+        });
+      });
+
+    }
+  });
+
+  bracelet.getLastDevice();
+
+
+  button.on("click", function(event){ progressDiscover.removeClass("hide"); statusText.text('Discovering..'); lastLabel.addClass('hide'); conBtn.addClass('hide'); bracelet.Discover().then(function(result){
     console.log('result ', result);
     collection.empty();
     progressDiscover.addClass("hide");
@@ -127,7 +160,6 @@ function hypertyDeployed(result) {
       statusText.text('Disconnected from ' + status.address + '.. Trying to Reconnect');
     }
   });
-
 
   button.removeClass("hide");
   progressLoad.addClass("hide");
