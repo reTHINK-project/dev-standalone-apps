@@ -19,12 +19,12 @@
     <allow-intent href="market:*" />
     <name>My Bracelet</name>
     <description>
-        A sample Rethink standalone app.
+        Bracelet Sensor Reporter App
     </description>
-    <author email="david.vilchez@quobis.com" href="http://quobis.com">
-        Quobis Team
+    <author email="lduarte.suil@gmail.com" href="http://www.alticelabs.com">
+        Altice TEAM
     </author>
-    <content src="index3.html" />
+    <content src="index.html" />
     <access origin="*" />
     <allow-navigation href="*" />
     <allow-intent href="http://*/*" />
