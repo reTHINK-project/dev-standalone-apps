@@ -25,7 +25,9 @@ The diagram below shows the architecture of the appplication. The hybrid applica
 
 ![Standalone Android App](MobileAppAndroidDiagram.png)
 
-### Building the reTHINK Android application
+### reTHINK Android application
+
+It is a Cordova project configured to run all the examples included into the developer toolkit in an Android device. You can use it to try some hyperties in a mobile device or as a boileplate to start a new hybrid reTHINK application.
 
 #### Installing prerequisites
 
