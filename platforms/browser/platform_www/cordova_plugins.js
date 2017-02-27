@@ -21,9 +21,9 @@ module.exports = [
 module.exports.metadata = 
 // TOP OF METADATA
 {
-    "cordova-plugin-crosswalk-webview": "1.6.1",
     "cordova-plugin-whitelist": "1.2.1",
-    "cordova-plugin-inappbrowser": "1.4.0"
+    "cordova-plugin-inappbrowser": "1.4.0",
+    "cordova-plugin-crosswalk-webview": "2.1.0"
 }
 // BOTTOM OF METADATA
 });

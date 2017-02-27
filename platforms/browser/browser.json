@@ -7,13 +7,13 @@
         "files": {}
     },
     "installed_plugins": {
-        "cordova-plugin-crosswalk-webview": {
-            "PACKAGE_NAME": "io.cordova.hellocordova"
-        },
         "cordova-plugin-whitelist": {
             "PACKAGE_NAME": "io.cordova.hellocordova"
         },
         "cordova-plugin-inappbrowser": {
+            "PACKAGE_NAME": "eu.rethink.demos"
+        },
+        "cordova-plugin-crosswalk-webview": {
             "PACKAGE_NAME": "eu.rethink.demos"
         }
     },
@@ -38,8 +38,8 @@
         }
     ],
     "plugin_metadata": {
-        "cordova-plugin-crosswalk-webview": "1.6.1",
         "cordova-plugin-whitelist": "1.2.1",
-        "cordova-plugin-inappbrowser": "1.4.0"
+        "cordova-plugin-inappbrowser": "1.4.0",
+        "cordova-plugin-crosswalk-webview": "2.1.0"
     }
 }
