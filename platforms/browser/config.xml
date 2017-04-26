@@ -1,11 +1,11 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="eu.rethink.demos" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>Rethink Standalone App</name>
+    <name>My Bracelet</name>
     <description>
-        A sample Rethink standalone app.
+        Bracelet Sensor Reporter App
     </description>
-    <author email="david.vilchez@quobis.com" href="http://quobis.com">
-        Quobis Team
+    <author email="lduarte.suil@gmail.com" href="http://www.alticelabs.com">
+        Altice TEAM
     </author>
     <content src="index.html" />
     <access origin="*" />
@@ -17,8 +17,5 @@
     <allow-intent href="mailto:*" />
     <allow-intent href="geo:*" />
     <hook src="hooks/appBeforePrepare.js" type="before_prepare" />
-    <preference name="xwalkVersion" value="18+" />
-    <preference name="xwalkCommandLine" value="--disable-pull-to-refresh-effect" />
-    <preference name="xwalkMode" value="embedded" />
-    <preference name="xwalkMultipleApk" value="true" />
+    <icon src="rethink.png" />
 </widget>

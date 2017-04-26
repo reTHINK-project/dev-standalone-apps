@@ -9,7 +9,7 @@
 var avatar = 'https://lh3.googleusercontent.com/-XdUIqdMkCWA/AAAAAAAAAAI/AAAAAAAAAAA/4252rscbv5M/photo.jpg';
 
 // You can change this at your own domain
-var  domain ="hybroker.rethink.ptinovacao.pt" ;
+var  domain ="hysmart.rethink.ptinovacao.pt" ;
 
 var config = {runtimeURL: "https://catalogue." +domain+ "/.well-known/runtime/Runtime", development: false} ;
 

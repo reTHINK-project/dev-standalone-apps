@@ -1,3 +1,25 @@
+## 4.3.3 - 2017-04-27
+- Fix typescript typings typos
+
+## 4.3.2 - 2017-03-03
+- Add typescript typings
+
+## 4.3.1 - 2017-01-21
+- Update plugin.xml to prevent possible conflicts with other plugins
+
+## 4.3.0 - 2016-09-21
+- Add ability to force rediscover via clearCache parameter (Android) [\#340](https://github.com/randdusing/cordova-plugin-bluetoothle/pull/340)
+- UUIDs are now always uppercase [\#337](https://github.com/randdusing/BluetoothLE/issues/337)
+- Fix issue with discoveredState being null on connect error, which caused NullPointerExceptions [\#342](https://github.com/randdusing/BluetoothLE/issues/342)
+- Add ability to auto connect via autoConnect parameter (Android) [\#333](https://github.com/randdusing/BluetoothLE/issues/333)
+- Update package.json engines [\#348](https://github.com/randdusing/cordova-plugin-bluetoothle/pull/348)
+
+## 4.2.1 - 2016-07-25 (Forgot GitHub release, but on NPM)
+- Fix issue with queuing getting stuck when device disconnects / closes [\#315](https://github.com/randdusing/cordova-plugin-bluetoothle/pull/315)
+
+## 4.2.0 - 2016-07-09
+- Added ability to bond/unbond on Android
+
 ## 4.1.0 - 2016-07-09
 - wasConnected helper function
 - Improved subscribe with Android. No longer need to specify whether notification or indication

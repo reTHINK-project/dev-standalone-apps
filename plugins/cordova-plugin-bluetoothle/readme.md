@@ -2,11 +2,6 @@
 This plugin allows you to interact with Bluetooth LE devices on Android, iOS, and partially on Windows.
 
 
-## ~~Available for Hire~~ ##
-I'm no longer available for hire at the moment, but I'm still open to questions. You can contact me via: <randdusing@gmail.com>, [Facebook](https://www.facebook.com/randdusing), [LinkedIn](https://www.linkedin.com/in/randdusing) or [Twitter](https://twitter.com/randdusing).
-If you're questions could help others, please post them here as I'd would like to start an FAQ section.
-
-
 ## Requirements ##
 
 * Cordova 5.0.0 or higher
@@ -59,6 +54,15 @@ PhoneGap Build
 ```<gap:plugin name="cordova-plugin-bluetoothle" source="npm" />```
 
 
+## Debugging ##
+Check out these guides for lower level debugging on Android and iOS:
+
+* [iOS](https://developer.apple.com/bug-reporting/profiles-and-logs/) - Scroll down to Bluetooth for iOS.
+* [Android](http://blog.bluetooth.com/debugging-bluetooth-with-an-android-app/)
+
+Apps like [LightBlue](https://itunes.apple.com/us/app/lightblue-explorer-bluetooth/id557428110?mt=8) are great for verifying Bluetooth LE behavior.
+
+
 ## Installation Quirks (Android) ##
 The latest version of the plugin requires you to set the Android target API to a minimum of 23 to support permission requirements for scanning. If you can't target 23, please use plugin version 2.4.0 or below.
 
@@ -71,6 +75,10 @@ Scanning works differently in the background. There seem to be three different s
 1. Foreground - Service UUID doesn't need to be specified and allowDuplicates isn't ignored.
 2. Background (Screen On) - Service UUID must be specified. allowDuplicates isn't ignored. Scanning is very slow!
 3. Background (Screen Off) - Service UUID must be specified. allowDuplicates is ignored, so a device will only be returned once per scan. One possible work around is to start and stop the scan while in background. Unfortunately, there's a slim chance that the app may fall asleep again in between starting and stopping the scan.
+
+
+## Usage Description (iOS) ##
+iOS now requires a usage description in the plist file. Use the following plugin to easily customize it: [cordova-plugin-bluetooth-peripheral-usage-description](https://github.com/randdusing/cordova-plugin-bluetooth-peripheral-usage-description)
 
 
 ## Discovery Quirks (iOS vs Android) ##
@@ -94,9 +102,6 @@ Another option is to connect to the device and use the "Device Information" (0x1
 See the following StackOverflow posts for more info: [here](https://stackoverflow.com/questions/18973098/get-mac-address-of-bluetooth-low-energy-peripheral) and [here](https://stackoverflow.com/questions/22833198/get-advertisement-data-for-ble-in-ios)
 
 
-## Data Values ##
-
-
 ## Emulator ##
 Neither Android nor iOS support Bluetooth on emulators, so you'll need to test on a real device.
 
@@ -109,6 +114,8 @@ Neither Android nor iOS support Bluetooth on emulators, so you'll need to test o
 * [bluetoothle.startScan] (#startscan)
 * [bluetoothle.stopScan] (#stopscan)
 * [bluetoothle.retrieveConnected] (#retrieveconnected)
+* [bluetoothle.bond] (#bond) (Android)
+* [bluetoothle.unbond] (#unbond) (Android)
 * [bluetoothle.connect] (#connect)
 * [bluetoothle.reconnect] (#reconnect)
 * [bluetoothle.disconnect] (#disconnect)
@@ -130,6 +137,7 @@ Neither Android nor iOS support Bluetooth on emulators, so you'll need to test o
 * [bluetoothle.isInitialized] (#isinitialized)
 * [bluetoothle.isEnabled] (#isenabled)
 * [bluetoothle.isScanning] (#isscanning)
+* [bluetoothle.isBonded] (#isbonded) (Android)
 * [bluetoothle.wasConnected] (#wasconnected)
 * [bluetoothle.isConnected] (#isconnected)
 * [bluetoothle.isDiscovered] (#isdiscovered)
@@ -161,6 +169,8 @@ Whenever the error callback is executed, the return object will contain the erro
 * disable - Bluetooth isn't disabled (Can't enabled if already disabled)
 * startScan - Scan couldn't be started (Is the scan already running?)
 * stopScan - Scan couldn't be stopped (Is the scan already stopped?)
+* bond - Bond couldn't be formed (Is it already bonding? Is the device Android?)
+* unbond - Bond couldn' be broken (Is it already unbonding? Is the device Android?)
 * connect - Connection attempt failed (Is the device address correct?)
 * reconnect - Reconnection attempt failed (Was the device ever connected?)
 * discover - Failed to discover device (Is the device already discovered or discovering?)
@@ -183,6 +193,7 @@ Whenever the error callback is executed, the return object will contain the erro
 * isNotDisconnected - Device is not disconnected (Don't call connect or reconnect while connected)
 * isNotConnected - Device isn't connected (Don't call discover or any read/write operations)
 * isDisconnected - Device is disconnected (Don't call disconnect)
+* isBonded - Operation is unsupported. (Is the device Android?)
 
 For example:
 ```javascript
@@ -289,7 +300,7 @@ bluetoothle.startScan(startScanSuccess, startScanError, params);
 ```
 
 ##### Params #####
-* services = An array of service IDs to filter the scan or empty array / null
+* services = An array of service IDs to filter the scan or empty array / null. This parameter is not supported on Windows platform yet.
 * iOS - See [iOS Docs](https://developer.apple.com/library/ios/documentation/CoreBluetooth/Reference/CBCentralManager_Class/#//apple_ref/doc/constant_group/Peripheral_Scanning_Options)
   * allowDuplicates = True/false to allow duplicate advertisement packets, defaults to false.
 * Android - See [Android Docs](http://developer.android.com/reference/android/bluetooth/le/ScanSettings.html)
@@ -320,6 +331,7 @@ bluetoothle.startScan(startScanSuccess, startScanError, params);
   * rssi = signal strength
   * advertisement = advertisement data in encoded string of bytes, use bluetoothle.encodedStringToBytes() (Android)
   * advertisement = advertisement hash with the keys specified [here](https://developer.apple.com/library/ios/documentation/CoreBluetooth/Reference/CBCentralManagerDelegate_Protocol/#//apple_ref/doc/constant_group/Advertisement_Data_Retrieval_Keys) (iOS)
+  * advertisement = empty (Windows)
 
 ```javascript
 {
@@ -405,6 +417,78 @@ An array of device objects:
 
 
 
+### bond ###
+Bond with a device. The first success callback should always return with ```status == bonding```. If the bond is created, the callback will return again with ```status == bonded```. If the bonding popup is canceled or the wrong code is entered, the callback will return again with ```status == unbonded```. The device doesn't need to be connected to initiate bonding. Android support only.
+
+```javascript
+bluetoothle.bond(bondSuccess, bondError, params);
+```
+
+##### Params #####
+* address = The address/identifier provided by the scan's return object
+
+```javascript
+{
+  "address": "5A:94:4B:38:B3:FD"
+}
+```
+
+##### Success #####
+* status => bonded = Device is bonded
+* status => bonding = Device is bonding
+* status => unbonded = Device is unbonded
+
+```javascript
+{
+  "name": "Hello World",
+  "address": "5A:94:4B:38:B3:FD",
+  "status": "bonded"
+}
+
+{
+  "name": "Hello World",
+  "address": "5A:94:4B:38:B3:FD",
+  "status": "bonding"
+}
+
+{
+  "name": "Hello World",
+  "address": "5A:94:4B:38:B3:FD",
+  "status": "unbonded"
+}
+```
+
+
+
+### unbond ###
+Unbond with a device. The success callback should always return with ```status == unbonded```. The device doesn't need to be connected to initiate bonding. Android support only.
+
+```javascript
+bluetoothle.unbond(unbondSuccess, unbondError, params);
+```
+
+##### Params #####
+* address = The address/identifier provided by the scan's return object
+
+```javascript
+{
+  "address": "5A:94:4B:38:B3:FD"
+}
+```
+
+##### Success #####
+* status => unbonded = Device is unbonded
+
+```javascript
+{
+  "name": "Hello World",
+  "address": "5A:94:4B:38:B3:FD",
+  "status": "unbonded"
+}
+```
+
+
+
 ### connect ###
 Connect to a Bluetooth LE device. The app should use a timer to limit the connecting time in case connecting is never successful. Once a device is connected, it may disconnect without user intervention. The original connection callback will be called again and receive an object with status => disconnected. To reconnect to the device, use the reconnect method. If a timeout occurs, the connection attempt should be canceled using disconnect(). For simplicity, I recommend just using connect() and close(), don't use reconnect() or disconnect().
 
@@ -414,6 +498,7 @@ bluetoothle.connect(connectSuccess, connectError, params);
 
 ##### Params #####
 * address = The address/identifier provided by the scan's return object
+* autoConnect = Automatically connect as soon as the remote device becomes available (Android)
 
 ```javascript
 {
@@ -478,6 +563,7 @@ bluetoothle.reconnect(reconnectSuccess, reconnectError, params);
 
 ### disconnect ###
 Disconnect from a Bluetooth LE device. It's simpler to just call close().
+**Starting with iOS 10, disconnecting before closing seems required!**
 
 ```javascript
 bluetoothle.disconnect(disconnectSuccess, disconnectError, params);
@@ -506,6 +592,7 @@ bluetoothle.disconnect(disconnectSuccess, disconnectError, params);
 
 ### close ###
 Close/dispose a Bluetooth LE device. Prior to 2.7.0, you needed to disconnect to the device before closing, but this is no longer the case.
+**Starting with iOS 10, disconnecting before closing seems required!**
 
 ```javascript
 bluetoothle.close(closeSuccess, closeError, params);
@@ -534,7 +621,7 @@ bluetoothle.close(closeSuccess, closeError, params);
 
 
 ### discover ###
-Discover all the devices services, characteristics and descriptors. Doesn't need to be called again after disconnecting and then reconnecting. If using iOS, you shouldn't use discover and services/characteristics/descriptors on the same device. There seems to be an issue with calling discover on iOS8 devices, so use with caution.
+Discover all the devices services, characteristics and descriptors. Doesn't need to be called again after disconnecting and then reconnecting. If using iOS, you shouldn't use discover and services/characteristics/descriptors on the same device. There seems to be an issue with calling discover on iOS8 devices, so use with caution. On some Android versions, the discovered services may be cached for a device.  Subsequent discover events will make use of this cache.  If your device's services change, set the clearCache parameter to force Android to re-discover services.
 
 ```javascript
 bluetoothle.discover(discoverSuccess, discoverError, params);
@@ -542,10 +629,12 @@ bluetoothle.discover(discoverSuccess, discoverError, params);
 
 ##### Params #####
 * address = The address/identifier provided by the scan's return object
+* clearCache = true / false (default) Force the device to re-discover services, instead of relying on cache from previous discovery (Android only)
 
 ```javascript
 {
-  "address": "00:22:D0:3B:32:10"
+  "address": "00:22:D0:3B:32:10",
+  "clearCache": true
 }
 ```
 
@@ -1322,6 +1411,35 @@ bluetoothle.isScanning(isScanning);
 
 
 
+### isBonded ###
+Determine whether the device is bonded or not, or error if not initialized. Android support only.
+
+```javascript
+bluetoothle.isBonded(isBondedSuccess, isBondedError, params);
+```
+
+#### Params ####
+* address = The address/identifier provided by the scan's return object
+
+```javascript
+{
+  "address": "5A:94:4B:38:B3:FD"
+}
+```
+
+##### Success #####
+* status => isBonded = true/false
+
+```javascript
+{
+  "name": "Polar H7 3B321015",
+  "address": "5A:94:4B:38:B3:FD",
+  "isBonded": false
+}
+```
+
+
+
 ### wasConnected ###
 Determine whether the device was connected, or error if not initialized.
 
@@ -1552,7 +1670,7 @@ bluetoothle.initializePeripheral(success, error, params);
   "address":"5163F1E0-5341-AF9B-9F67-613E15EC83F7",
   "service":"1234",
   "characteristic":"ABCD",
-  requestId":0, //This integer value will be incremented every read/writeRequested
+  "requestId":0, //This integer value will be incremented every read/writeRequested
   "offset":0
 }
 ```
@@ -1570,30 +1688,30 @@ bluetoothle.initializePeripheral(success, error, params);
 }
 ```
 
-###### subscribedToCharacteristic ######
+###### subscribed ######
 ```javascript
 {
-  "status":"subscribedToCharacteristic",
+  "status":"subscribed",
   "address":"5163F1E0-5341-AF9B-9F67-613E15EC83F7",
   "service":"1234",
   "characteristic":"ABCD"
 }
 ```
 
-###### unsubscribedToCharacteristic ######
+###### unsubscribed ######
 ```javascript
 {
-  "status":"unsubscribedToCharacteristic",
+  "status":"unsubscribed",
   "address":"5163F1E0-5341-AF9B-9F67-613E15EC83F7",
   "service":"1234",
   "characteristic":"ABCD"
 }
 ```
 
-###### peripheralManagerIsReadyToUpdateSubscribers ######
+###### notificationReady ######
 ```javascript
 {
-  "status":"peripheralManagerIsReadyToUpdateSubscribers"
+  "status":"notificationReady"
 }
 ```
 
@@ -1715,6 +1833,7 @@ bluetoothle.removeAllServices(success, error);
 
 ### startAdvertising ###
 Start advertising as a BLE device. Note: This needs to be improved so services can be used for both Android and iOS.
+On iOS, the advertising devices likes to rename itself back to the name of the device, i.e. Rand' iPhone
 
 ```javascript
 bluetoothle.startAdvertising(success, error, params);
@@ -1966,10 +2085,9 @@ The BluetoothLE plugin uses an adapter to interact with each device's Bluetooth 
 
 document.addEventListener('deviceready', function () {
 
-    new Promise(function (resolve, reject) {
+    new Promise(function (resolve) {
 
-        bluetoothle.initialize(resolve, reject,
-            { request: true, statusReceiver: false });
+        bluetoothle.initialize(resolve, { request: true, statusReceiver: false });
 
     }).then(initializeSuccess, handleError);
 
@@ -2218,8 +2336,7 @@ function stopScan() {
 
     new Promise(function (resolve, reject) {
 
-        bluetoothle.storpScan(resolve, reject,
-            { address: result.address });
+        bluetoothle.stopScan(resolve, reject);
 
     }).then(stopScanSuccess, handleError);
 }
@@ -2515,7 +2632,7 @@ function reportValue(serviceUuid, characteristicUuid, value) {
 
 ```
 
-That's it! Find the complete sample here: https://github.com/Microsoft/cordova-samples/tree/master/cordova-plugin-bluetoothle.
+That's it! Find the complete sample here: https://github.com/Microsoft/cordova-samples/tree/c3135acbf5e59c0b7fd0f7f097c07c57aa275974/cordova-plugin-bluetoothle.
 
 
 ## More information ##
